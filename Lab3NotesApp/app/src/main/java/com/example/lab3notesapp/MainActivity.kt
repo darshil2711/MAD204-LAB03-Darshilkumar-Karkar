@@ -18,8 +18,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson // <-- NEW IMPORT
-import com.google.gson.reflect.TypeToken // <-- NEW IMPORT
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 /**
  * Main activity for the Persistent Notes App.
@@ -81,23 +81,40 @@ class MainActivity : AppCompatActivity() {
      * Configures the RecyclerView with its LayoutManager and Adapter.
      */
     private fun setupRecyclerView() {
-        // ... (no changes here)
+        noteAdapter = NoteAdapter(noteList) { position ->
+            deleteNote(position)
+        }
+        rvNotesList.adapter = noteAdapter
+        rvNotesList.layoutManager = LinearLayoutManager(this)
     }
 
     /**
      * Handles adding a new note to the list.
-     * ... (no changes here)
      */
     private fun addNote() {
-        // ... (no changes here)
+        val newNote = etNoteInput.text.toString().trim()
+        if (newNote.isNotBlank()) {
+            noteList.add(0, newNote) // Add to the top of the list
+            noteAdapter.notifyItemInserted(0)
+            etNoteInput.text.clear()
+            rvNotesList.scrollToPosition(0) // Scroll to see the new note
+        }
     }
 
     /**
      * Deletes a note at a given position and shows a Snackbar with an UNDO option.
-     * ... (no changes here)
      */
     private fun deleteNote(position: Int) {
-        // ... (no changes here)
+        val deletedNote = noteList.removeAt(position)
+        noteAdapter.notifyItemRemoved(position)
+
+        Snackbar.make(mainLayout, "Note deleted", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                noteList.add(position, deletedNote)
+                noteAdapter.notifyItemInserted(position)
+                rvNotesList.scrollToPosition(position)
+            }
+            .show()
     }
 
 
