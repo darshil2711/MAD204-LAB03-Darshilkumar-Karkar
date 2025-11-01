@@ -1,4 +1,11 @@
-package com.example.lab3notesapp // <-- Make sure this package name matches yours!
+/*
+ * Course: MAD204 - Lab 3
+ * Student Name: Darshilkumar Karkar
+ * Student ID: A00203357
+ * Date: 2025-11-02
+ */
+
+package com.example.lab3notesapp
 
 import android.view.LayoutInflater
 import android.view.View
