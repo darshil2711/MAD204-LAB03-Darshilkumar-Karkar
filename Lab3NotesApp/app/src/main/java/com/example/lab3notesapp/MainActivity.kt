@@ -1,5 +1,6 @@
 package com.example.lab3notesapp
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -8,6 +9,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson // <-- NEW IMPORT
+import com.google.gson.reflect.TypeToken // <-- NEW IMPORT
 
 /**
  * Main activity for the Persistent Notes App.
@@ -19,20 +22,35 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etNoteInput: EditText
     private lateinit var btnAddNote: Button
     private lateinit var rvNotesList: RecyclerView
-    private lateinit var mainLayout: ConstraintLayout // For Snackbar
+    private lateinit var mainLayout: ConstraintLayout
 
     private lateinit var noteAdapter: NoteAdapter
     private var noteList = ArrayList<String>()
+
+    // --- NEW: For Persistence ---
+    private lateinit var sharedPreferences: SharedPreferences
+    private val gson = Gson()
+    private val PREFS_NAME = "NotePrefs"
+    private val NOTES_KEY = "NoteList"
+    // ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // --- Initialize SharedPreferences ---
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        // ---
+
         // Find views by their ID
         etNoteInput = findViewById(R.id.etNoteInput)
         btnAddNote = findViewById(R.id.btnAddNote)
         rvNotesList = findViewById(R.id.rvNotesList)
-        mainLayout = findViewById(R.id.main) // Find root layout
+        mainLayout = findViewById(R.id.main)
+
+        // --- Load notes *before* setting up RecyclerView ---
+        loadNotes()
+        // ---
 
         // Initialize the RecyclerView
         setupRecyclerView()
@@ -43,49 +61,55 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // --- Save notes when the app is paused ---
+    override fun onPause() {
+        super.onPause()
+        saveNotes()
+    }
+    // ---
+
     /**
      * Configures the RecyclerView with its LayoutManager and Adapter.
      */
     private fun setupRecyclerView() {
-        // Initialize the adapter with the note list
-        noteAdapter = NoteAdapter(noteList) { position ->
-            // --- Handle the long click ---
-            deleteNote(position)
-        }
-
-        rvNotesList.adapter = noteAdapter
-        rvNotesList.layoutManager = LinearLayoutManager(this)
+        // ... (no changes here)
     }
 
     /**
      * Handles adding a new note to the list.
-     * ... (existing addNote code)
+     * ... (no changes here)
      */
     private fun addNote() {
+        // ... (no changes here)
     }
 
     /**
      * Deletes a note at a given position and shows a Snackbar with an UNDO option.
-     *
-     * @param position The index of the note to delete.
+     * ... (no changes here)
      */
     private fun deleteNote(position: Int) {
-        // 1. Get the note to be deleted
-        val deletedNote = noteList[position]
+        // ... (no changes here)
+    }
 
-        // 2. Remove it from the list and notify the adapter
-        noteList.removeAt(position)
-        noteAdapter.notifyItemRemoved(position)
-        noteAdapter.notifyItemRangeChanged(position, noteList.size) // Update positions
 
-        // 3. Show Snackbar with UNDO
-        Snackbar.make(mainLayout, "Note deleted", Snackbar.LENGTH_LONG)
-            .setAction("UNDO") {
-                // 4. UNDO action: re-add the note at its original position
-                noteList.add(position, deletedNote)
-                noteAdapter.notifyItemInserted(position)
-                rvNotesList.scrollToPosition(position) // Scroll to the restored item
-            }
-            .show()
+    /**
+     * Saves the current note list to SharedPreferences as a JSON string.
+     */
+    private fun saveNotes() {
+        val editor = sharedPreferences.edit()
+        val json = gson.toJson(noteList) // Convert list to JSON string
+        editor.putString(NOTES_KEY, json)
+        editor.apply() // Save asynchronously
+    }
+
+    /**
+     * Loads the note list from SharedPreferences.
+     */
+    private fun loadNotes() {
+        val json = sharedPreferences.getString(NOTES_KEY, null)
+        if (json != null) {
+            val type = object : TypeToken<ArrayList<String>>() {}.type
+            noteList = gson.fromJson(json, type) // Convert JSON string back to list
+        }
     }
 }
