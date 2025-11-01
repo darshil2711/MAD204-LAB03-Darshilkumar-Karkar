@@ -1,3 +1,12 @@
+/*
+ * Course: MAD204 - Lab 3
+ * Student Name: Darshilkumar Karkar
+ * Student ID: A00203357
+ * Date: 2025-11-02
+ * Description: Main activity for a persistent notes application. Allows users
+ * to add, delete (with undo), and store notes persistently.
+ */
+
 package com.example.lab3notesapp
 
 import android.content.SharedPreferences
