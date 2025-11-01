@@ -1,5 +1,5 @@
 
-package com.example.lab3notesapp // <-- Make sure this package name matches yours!
+package com.example.lab3notesapp
 
 import android.os.Bundle
 import android.widget.Button
@@ -12,15 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
  * Main activity for the Persistent Notes App.
  * Handles user input, displays notes in a RecyclerView, and manages data persistence.
  */
+// ... (imports and class definition)
+
 class MainActivity : AppCompatActivity() {
 
-    // --- Class-level Variables ---
-    private lateinit var etNoteInput: EditText
-    private lateinit var btnAddNote: Button
-    private lateinit var rvNotesList: RecyclerView
-
-    private lateinit var noteAdapter: NoteAdapter
-    private var noteList = ArrayList<String>()
+    // ... (class variables)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,18 +29,38 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize the RecyclerView
         setupRecyclerView()
+
+
+        // Set click listener for the "Add Note" button
+        btnAddNote.setOnClickListener {
+            addNote()
+        }
     }
 
     /**
-     * Configures the RecyclerView with its LayoutManager and Adapter.
+     * Configures the RecyclerView...
      */
     private fun setupRecyclerView() {
-        // Initialize the adapter with the note list and a placeholder long-click listener
-        noteAdapter = NoteAdapter(noteList) { position ->
-            // We will implement deletion in a future step
-        }
+        // ... (existing setupRecyclerView code)
+    }
 
-        rvNotesList.adapter = noteAdapter
-        rvNotesList.layoutManager = LinearLayoutManager(this)
+    /**
+     * Handles adding a new note to the list.
+     * Reads text from the EditText, adds it to the list, and updates the adapter.
+     */
+    private fun addNote() {
+        val noteText = etNoteInput.text.toString().trim()
+
+        if (noteText.isNotEmpty()) {
+            noteList.add(noteText) // Add to the list
+            noteAdapter.notifyItemInserted(noteList.size - 1) // Tell adapter
+            rvNotesList.scrollToPosition(noteList.size - 1) // Scroll to the new item
+            etNoteInput.text.clear() // Clear the input field
+
+            // Show Toast confirmation
+            android.widget.Toast.makeText(this, "Note added", android.widget.Toast.LENGTH_SHORT).show()
+        } else {
+            android.widget.Toast.makeText(this, "Note cannot be empty", android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 }
